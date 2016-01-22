@@ -10,17 +10,79 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
+
+
+
+
 public class EvilHangman implements IEvilHangmanGame {
 	
-	private static int wordLength; //( >= 1)
-	private static int numGuesses; //( >0 && < 26)
+	private int wordLength; //( >= 1)
+	private int numGuesses; //( >0 && < 26)
 	private static Set<String> wordSet = new HashSet<String>();
 	// Alphabetical Set - Used so far
-	private Set guessedLetters = new TreeSet();
-	private String partialWord = "";
-	private char currChar;
+	private static Set guessedLetters = new TreeSet();
+	public String partialWord = "";
+	public char currChar;
+	public Key theWord = new Key(wordLength);
+	
+	public void printMan() {
+		System.out.println(" _______");
+		System.out.println("|       |");
+		System.out.println("|       O");
+		System.out.println("|      /| ");
+		System.out.println("|       | ");
+		System.out.println("|      /  ");
+		System.out.println("|");
+		System.out.println("|_____");
+	}
+	
+	public void userOutput(int origGuesses) {
+		System.out.println();
+		System.out.println("You have " + numGuesses + " guesses left.");		
+		if(this.numGuesses < origGuesses) {
+			System.out.print("Guessed Letters: ");
+			for(Object c : guessedLetters) {
+				char letter = (char)c;
+				System.out.print(letter + " ");
+			}
+			System.out.println();
+			// Print out Key
+			
+			System.out.println("Current Word: " + this.theWord.toString());
+		}
+	}
 
-
+	public void addGuessed(char guess) {
+		guessedLetters.add(guess);
+	}
+	
+	public void decrementGuesses() {
+		numGuesses--;
+	}
+	
+	public boolean isAlpha(String val) {
+	    return val.matches("[a-zA-Z]+");
+	}
+	
+	public int checkWordSet(char guess) {
+		boolean exists = true;
+		int runningValue = this.wordLength;
+		for(String str : wordSet) {
+			// Check if char exists in the string itself
+			int count = 0;
+			for(int i = 0; i < str.length(); i++) {
+				if(str.charAt(i) == guess) {
+					// Keeps count at how many times the letter actually appears. 
+					count++;
+				}
+			}
+			if(count < runningValue) count = runningValue;
+		}
+		
+		return runningValue;
+		
+	}
+	
 	@Override
 	public void startGame(File dictionary, int wordLength) {
 		
@@ -28,11 +90,28 @@ public class EvilHangman implements IEvilHangmanGame {
 
 	@Override
 	public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException {
-
-		return null;
+		
+		this.addGuessed(guess);
+		boolean guessMade = true;
+		int freq = 0;
+		
+		this.checkWordSet(guess);
+		
+		if(guessMade) {
+			
+			System.out.println("Yes, there is " + freq + " " + guess);
+			this.theWord.updateValue(guess);
+						
+		}
+		else {
+			System.out.println("Sorry, there are no " + guess + "'s");
+			this.decrementGuesses();
+		}
+		
+		return wordSet;
 	}
 	
-	public static void buildWordSet(String dictionary) {
+	public void buildWordSet(String dictionary) {
 		
 		File file = new File(dictionary);
 		FileReader fr = null;
@@ -48,40 +127,49 @@ public class EvilHangman implements IEvilHangmanGame {
 		sc.useDelimiter("[^a-zA-Z]+");
 		while(sc.hasNext()) {
 			String next = sc.next();
-			if(next.length() == wordLength) {
+			if(next.length() == this.wordLength) {
 				wordSet.add(next);
 			}
 		}
 	}
 	
 	public static void main(String[] args) {
+		EvilHangman game = new EvilHangman();
 		String dictionary = args[0];
-		numGuesses = Integer.parseInt(args[2]);
-		wordLength = Integer.parseInt(args[1]);
+		game.wordLength = Integer.parseInt(args[1]);
+		game.numGuesses = Integer.parseInt(args[2]);
+		int origGuesses = Integer.parseInt(args[2]);		
+		game.theWord = new Key(game.wordLength);
 		
-		buildWordSet(dictionary);
+		game.buildWordSet(dictionary);
 		
 		System.out.println("Welcome to Hangman!");
-		//System.out.print("Would you Like to play?(Y/N): ");
-		//Scanner input = new Scanner(System.in);
-		//String in = input.next();
-		//System.out.println(in);
+		game.printMan();
 		
-		while(numGuesses > 0) {
-			System.out.println("You have " + numGuesses + " guesses left.");
-			System.out.print("What letter do you want to guess?: ");
-			Scanner input1 = new Scanner(System.in);
-			String in1 = input1.next();
-			System.out.println(in1);
+		while(game.numGuesses > 0) {
 			
-			if(in1.length() == 1) {
-				
+			game.userOutput(origGuesses);
+			
+			System.out.print("What letter do you want to guess?: ");
+			Scanner input = new Scanner(System.in);
+			String in = input.next();
+			
+			if(in.length() == 1 && game.isAlpha(in)) {
+				char guess = in.charAt(0);
+				try {
+					// Making Guess Here.
+					game.makeGuess(guess);
+				} catch (GuessAlreadyMadeException e) {
+					System.out.println("You already used that letter.");
+					e.printStackTrace();
+				}
 			}
 			else {
-				System.out.print("Sorry, please try again: ");
+				System.out.print("Invalid input");
+				System.out.println();
 			}
 			
-			numGuesses--;
+			
 		}
 		
 		
