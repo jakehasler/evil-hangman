@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -24,12 +26,13 @@ public class EvilHangman implements IEvilHangmanGame {
 	public String partialWord = "";
 	public char currChar;
 	public Key theWord = new Key(wordLength);
+	public Partitions partitions = new Partitions();
 	
 	public void printMan() {
 		System.out.println(" _______");
 		System.out.println("|       |");
 		System.out.println("|       O");
-		System.out.println("|      /| ");
+		System.out.println("|      /|\\");
 		System.out.println("|       | ");
 		System.out.println("|      /  ");
 		System.out.println("|");
@@ -47,7 +50,6 @@ public class EvilHangman implements IEvilHangmanGame {
 			}
 			System.out.println();
 			// Print out Key
-			
 			System.out.println("Current Word: " + this.theWord.toString());
 		}
 	}
@@ -64,23 +66,38 @@ public class EvilHangman implements IEvilHangmanGame {
 	    return val.matches("[a-zA-Z]+");
 	}
 	
-	public int checkWordSet(char guess) {
-		boolean exists = true;
-		int runningValue = this.wordLength;
-		for(String str : wordSet) {
-			// Check if char exists in the string itself
-			int count = 0;
+	public void checkWordSet(char guess) {
+
+		for(String str: wordSet) {	
+			Key testKey = new Key(this.wordLength);
+			ArrayList indices = new ArrayList();
+			
 			for(int i = 0; i < str.length(); i++) {
 				if(str.charAt(i) == guess) {
-					// Keeps count at how many times the letter actually appears. 
-					count++;
+					indices.add(i);
 				}
 			}
-			if(count < runningValue) count = runningValue;
+			// adding the values to the key.
+			testKey.addChar(indices, guess);
+			
+			if(!partitions.find(testKey)) {
+				// if the key doesn't exist
+				// create a new partition and initialize it with the key
+				// add it to the HashMap
+				Partition anotherOne = new Partition(testKey);
+				anotherOne.add(str);
+				partitions.put(testKey, anotherOne);	
+			}
+			else {
+				// Key does exist
+				// add the string to the partition with matching key
+				partitions.insert(testKey, str);
+			}
 		}
 		
-		return runningValue;
-		
+		Partition best = partitions.getBest(wordLength);
+		this.wordSet = best.getSet();
+		this.partialWord = best.getKey().toString();
 	}
 	
 	@Override
@@ -92,7 +109,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException {
 		
 		this.addGuessed(guess);
-		boolean guessMade = true;
+		boolean guessMade = false;
 		int freq = 0;
 		
 		this.checkWordSet(guess);
@@ -101,13 +118,11 @@ public class EvilHangman implements IEvilHangmanGame {
 			
 			System.out.println("Yes, there is " + freq + " " + guess);
 			this.theWord.updateValue(guess);
-						
 		}
 		else {
 			System.out.println("Sorry, there are no " + guess + "'s");
 			this.decrementGuesses();
 		}
-		
 		return wordSet;
 	}
 	
@@ -168,11 +183,6 @@ public class EvilHangman implements IEvilHangmanGame {
 				System.out.print("Invalid input");
 				System.out.println();
 			}
-			
-			
 		}
-		
-		
 	}
-
 }

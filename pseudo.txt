@@ -1,0 +1,47 @@
+function(char guessed)
+
+for(String str: wordSet) {
+	
+	Key test = new Key(this.wordLength);
+	ArrayList indices = new ArrayList();
+	for(int i = 0; i < str.length(); i++) {
+		if(str.charAt(i) == guessed) {
+			indices.add(i);
+		}
+	}
+	// adding the values to the key.
+	test.addChar(indices, guessed);
+	
+	if(!partitions.find(key)) {
+		// if the key doesn't exist
+		// create a new partition and initialize it with the key
+		// add it to the HashMap
+		Partition anotherOne = new Partition(key);
+		partitions.put(key, partition);
+	}
+	else {
+		// Key does exist
+		// add the string to the partition with matching key
+		partitions.insert(key, str);
+	}
+	
+}
+
+void getBestPartition() {
+	Key theKey = new Key(wordLength);
+	Partition best = new Partition(theKey);
+	for(Partition part : partitions) {
+		if(part.getSize() > best.getSize()) {
+			best = part;
+		}
+		else if(part.getSize() == best.getSize()) {
+			if(part.emptyKey()) {
+				best = part;
+			}
+			else {
+			// choose key with rightmost guessed letter
+			}
+		}
+		
+	}
+}
