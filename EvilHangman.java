@@ -107,10 +107,18 @@ public class EvilHangman implements IEvilHangmanGame {
 
 	@Override
 	public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException {
-		
-		this.addGuessed(guess);
+
 		boolean guessMade = false;
 		int freq = 0;
+		// Check if guess has already been made
+		for (Object thisGuess : this.guessedLetters) {
+			char theGuess = (char)thisGuess;
+			if(theGuess == guess) {
+				throw new GuessAlreadyMadeException();
+			}
+		}
+		
+		this.addGuessed(guess);
 		
 		this.checkWordSet(guess);
 		
