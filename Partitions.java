@@ -22,7 +22,6 @@ public class Partitions {
 	}
 
 	public void insert(Key theKey, String str) {
-
 		Iterator it = partitions.entrySet().iterator();
 		while(it.hasNext()) {
 			Map.Entry<Key, Partition> pair = (Map.Entry)it.next();

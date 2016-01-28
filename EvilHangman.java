@@ -24,6 +24,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	// Alphabetical Set - Used so far
 	private static Set guessedLetters = new TreeSet();
 	public String partialWord = "";
+	public Partition bestPart;
 	public char currChar;
 	public Key theWord = new Key(wordLength);
 	public Partitions partitions = new Partitions();
@@ -66,9 +67,10 @@ public class EvilHangman implements IEvilHangmanGame {
 	    return val.matches("[a-zA-Z]+");
 	}
 	
-	public void checkWordSet(char guess) {
+	public boolean checkWordSet(char guess) {
 
-		for(String str: wordSet) {	
+		boolean guessMade = false;
+		for(String str : wordSet) {	
 			Key testKey = new Key(this.wordLength);
 			ArrayList indices = new ArrayList();
 			
@@ -95,9 +97,13 @@ public class EvilHangman implements IEvilHangmanGame {
 			}
 		}
 		
-		Partition best = partitions.getBest(wordLength);
-		this.wordSet = best.getSet();
-		this.partialWord = best.getKey().toString();
+		bestPart = partitions.getBest(wordLength);
+		if(!bestPart.getKey().empty()) {
+			guessMade = true;
+		}
+		this.wordSet = bestPart.getSet();
+		this.partialWord = bestPart.getKey().toString();
+		return guessMade;
 	}
 	
 	@Override
@@ -120,12 +126,11 @@ public class EvilHangman implements IEvilHangmanGame {
 		
 		this.addGuessed(guess);
 		
-		this.checkWordSet(guess);
+		guessMade = this.checkWordSet(guess);
 		
 		if(guessMade) {
-			
 			System.out.println("Yes, there is " + freq + " " + guess);
-			this.theWord.updateValue(guess);
+			//this.theWord.updateValue(guess);
 		}
 		else {
 			System.out.println("Sorry, there are no " + guess + "'s");
