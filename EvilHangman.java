@@ -127,6 +127,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	@Override
 	public void startGame(File dictionary, int wordLength) {
 		this.wordLength = wordLength;
+		this.theWord = new Key(wordLength);
 		this.buildWordSet(dictionary);
 	}
 
@@ -170,6 +171,8 @@ public class EvilHangman implements IEvilHangmanGame {
 	
 	public void buildWordSet(File file) {
 		this.wordSet = new HashSet();
+		this.guessedLetters = new TreeSet();
+		
 		
 		FileReader fr = null;
 		try {
