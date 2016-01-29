@@ -23,11 +23,12 @@ public class EvilHangman implements IEvilHangmanGame {
 	private static Set<String> wordSet = new HashSet<String>();
 	// Alphabetical Set - Used so far
 	private static Set guessedLetters = new TreeSet();
-	public String partialWord = "";
 	public Partition bestPart;
 	public char currChar;
 	public Key theWord = new Key(wordLength);
 	public Partitions partitions = new Partitions();
+	public int currGuessFreq = 0;
+	public boolean gameWon = false;
 	
 	public void printMan() {
 		System.out.println(" _______");
@@ -41,9 +42,11 @@ public class EvilHangman implements IEvilHangmanGame {
 	}
 	
 	public void userOutput(int origGuesses) {
+
 		System.out.println();
+		//System.out.println(wordSet);
 		System.out.println("You have " + numGuesses + " guesses left.");		
-		if(this.numGuesses < origGuesses) {
+		if(this.numGuesses <= origGuesses) {
 			System.out.print("Guessed Letters: ");
 			for(Object c : guessedLetters) {
 				char letter = (char)c;
@@ -79,41 +82,57 @@ public class EvilHangman implements IEvilHangmanGame {
 					indices.add(i);
 				}
 			}
+			
+			//System.out.println(indices);
 			// adding the values to the key.
 			testKey.addChar(indices, guess);
-			
 			if(!partitions.find(testKey)) {
 				// if the key doesn't exist
 				// create a new partition and initialize it with the key
 				// add it to the HashMap
 				Partition anotherOne = new Partition(testKey);
 				anotherOne.add(str);
-				partitions.put(testKey, anotherOne);	
+				partitions.put(testKey, anotherOne);
 			}
 			else {
 				// Key does exist
 				// add the string to the partition with matching key
 				partitions.insert(testKey, str);
+				//System.out.println("Inserted into partition:");
+				//System.out.println(testKey + str);
 			}
 		}
-		
-		bestPart = partitions.getBest(wordLength);
-		if(!bestPart.getKey().empty()) {
+		int prevCount = theWord.letterCount();
+		bestPart = partitions.getBest(wordLength, theWord);
+		//prevCount += bestPart.getKey().letterCount();
+		this.currGuessFreq = bestPart.getKey().letterCount();
+		//System.out.println("Best Partition:");
+		//System.out.println(bestPart.getKey().toString() + bestPart.getSet());
+		// TODO Resolve how to properly determine if a guess has ben made.
+		if(bestPart.getKey().letterCount() > 0) {
 			guessMade = true;
+			this.theWord.updateValue(bestPart);
 		}
+		else if(prevCount == bestPart.getKey().letterCount()) {
+			//guessMade = true;
+			//this.theWord.updateValue(bestPart);
+		}
+		// TODO be sure that the Key is getting assigned of the partition
 		this.wordSet = bestPart.getSet();
-		this.partialWord = bestPart.getKey().toString();
+		//System.out.println("After Best");
+		//System.out.println(this.theWord.toString());
 		return guessMade;
 	}
 	
 	@Override
 	public void startGame(File dictionary, int wordLength) {
-		
+		this.wordLength = wordLength;
+		this.buildWordSet(dictionary);
 	}
 
 	@Override
 	public Set<String> makeGuess(char guess) throws GuessAlreadyMadeException {
-
+		partitions.clear();
 		boolean guessMade = false;
 		int freq = 0;
 		// Check if guess has already been made
@@ -121,16 +140,26 @@ public class EvilHangman implements IEvilHangmanGame {
 			char theGuess = (char)thisGuess;
 			if(theGuess == guess) {
 				throw new GuessAlreadyMadeException();
-			}
+			}	
 		}
 		
 		this.addGuessed(guess);
 		
 		guessMade = this.checkWordSet(guess);
-		
+
 		if(guessMade) {
-			System.out.println("Yes, there is " + freq + " " + guess);
-			//this.theWord.updateValue(guess);
+			if(this.theWord.letterCount() == wordLength) {
+				System.out.println("Congrats! You won!");
+				System.out.println("The word is: " + theWord.toString() + "!");
+				this.gameWon = true;
+				
+			}
+			else if (guessedLetters.size() == numGuesses) {
+				
+			}
+			else if (this.currGuessFreq > 0) {
+				System.out.println("Yes, there is " + this.currGuessFreq + " " + guess);			
+			}
 		}
 		else {
 			System.out.println("Sorry, there are no " + guess + "'s");
@@ -139,9 +168,8 @@ public class EvilHangman implements IEvilHangmanGame {
 		return wordSet;
 	}
 	
-	public void buildWordSet(String dictionary) {
+	public void buildWordSet(File file) {
 		
-		File file = new File(dictionary);
 		FileReader fr = null;
 		try {
 			fr = new FileReader(file);
@@ -159,22 +187,23 @@ public class EvilHangman implements IEvilHangmanGame {
 				wordSet.add(next);
 			}
 		}
+		
 	}
 	
 	public static void main(String[] args) {
 		EvilHangman game = new EvilHangman();
 		String dictionary = args[0];
-		game.wordLength = Integer.parseInt(args[1]);
+		File file = new File(dictionary);
+		game.startGame(file, Integer.parseInt(args[1]));
 		game.numGuesses = Integer.parseInt(args[2]);
 		int origGuesses = Integer.parseInt(args[2]);		
 		game.theWord = new Key(game.wordLength);
 		
-		game.buildWordSet(dictionary);
 		
 		System.out.println("Welcome to Hangman!");
 		game.printMan();
 		
-		while(game.numGuesses > 0) {
+		while(game.numGuesses > 0 && game.gameWon == false) {
 			
 			game.userOutput(origGuesses);
 			
@@ -196,6 +225,10 @@ public class EvilHangman implements IEvilHangmanGame {
 				System.out.print("Invalid input");
 				System.out.println();
 			}
+		}
+		if(game.numGuesses == 0 && !game.gameWon) {
+			System.out.println("You Lose!");
+			System.out.println("The word was: " + game.wordSet.iterator().next());
 		}
 	}
 }

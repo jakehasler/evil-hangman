@@ -15,8 +15,33 @@ public class Key {
 		Arrays.fill(chars, '-');
 		value = new String(chars);
 	}
+
+	public int getFirstChar() {
+		// returns first seen character.
+		String one = this.value;
+		for(int i = 0; i < one.length(); i++) {
+			if(one.charAt(i) != '-') {
+				return i;
+			}
+		}
+		
+		return 0;
+		
+	}
 	
-	public void updateValue(char letter) {
+	public void updateValue(Partition bestPart) {
+		String currValue = value;
+		Key toCompare = bestPart.getKey();
+		StringBuilder sb = new StringBuilder(value);
+		for(int i = 0; i < toCompare.toString().length(); i++) {
+			//System.out.println("sbtest");
+			//System.out.println(sb.toString());
+			if(value.charAt(i) == '-') {
+				sb.setCharAt(i, toCompare.toString().charAt(i));
+			}
+		}
+		value = sb.toString();
+		
 		
 	}
 	
@@ -37,6 +62,16 @@ public class Key {
 			}
 		}
 		return ifDashes;
+	}
+	
+	public int letterCount() {
+		int charCount = 0;
+		for(int i = 0; i < value.length(); i++) {
+			if(value.charAt(i) != '-') {
+				charCount++;
+			}
+		}
+		return charCount;
 	}
 	
 	public String toString() {
