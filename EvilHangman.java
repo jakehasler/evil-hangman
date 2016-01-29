@@ -20,7 +20,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	
 	private int wordLength; //( >= 1)
 	private int numGuesses; //( >0 && < 26)
-	private static Set<String> wordSet = new HashSet<String>();
+	private static Set<String> wordSet;
 	// Alphabetical Set - Used so far
 	private static Set guessedLetters = new TreeSet();
 	public Partition bestPart;
@@ -169,6 +169,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	}
 	
 	public void buildWordSet(File file) {
+		this.wordSet = new HashSet();
 		
 		FileReader fr = null;
 		try {
