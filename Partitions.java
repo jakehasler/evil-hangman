@@ -28,10 +28,11 @@ public class Partitions {
 			Map.Entry<String, Partition> pair = (Map.Entry)it.next();
 			if(pair.getKey().toString().equals(theKey.toString())) {
 				pair.getValue().add(str);
-				if(numGuesses < 5) {
+				//if(numGuesses < 5) {
 					//System.out.println("Existing Partition:");
 					//System.out.println(pair.getValue().getKey().toString() + " " +  pair.getValue().getSet().toString());
-				}
+					//System.out.println("Partition Size: " + pair.getValue().getSize());
+				//}
 			}
 		}
 	}
@@ -47,39 +48,51 @@ public class Partitions {
 	public Partition getBest(int wordLength, Key currentWord) {
 		Partition best = new Partition(currentWord);
 		int letterCount = best.getKey().letterCount();
-		//System.out.println(letterCount);
+		//System.out.println(best.getSize());
 		//System.out.println("Getting Best");
 		//System.out.println(best.getKey().toString());
 		Iterator it = partitions.entrySet().iterator();
 		while(it.hasNext()) {
-			Map.Entry<String, Partition> pair = (Map.Entry)it.next();
-			if(pair.getValue().getSize() > best.getSize()) {
-				best = pair.getValue();
+			Map.Entry<String, Partition> compare = (Map.Entry)it.next();
+			boolean hasBeenSet = false;
+			//System.out.println("Compare: " + compare.getValue().getSize());
+			//System.out.println("Best: " + best.getSize());
+			
+			if(compare.getValue().getSize() > best.getSize()) {
+				best = compare.getValue();
+				hasBeenSet = true;
 			}
-			else if(pair.getValue().getSize() == best.getSize()) {
-				if(pair.getValue().emptyKey()) {
-					best = pair.getValue();
-					
+			else if(compare.getValue().getSize() == best.getSize()) {
+				if(compare.getValue().getKey().letterCount() < best.getKey().letterCount()) {
+					best = compare.getValue();
 				}
-				else {
-					if(best.emptyKey()) {
-						return best;
+				else if(compare.getValue().getKey().letterCount() == best.getKey().letterCount()) {
+					if(best.getKey().toString().compareTo(compare.getValue().getKey().toString()) > 0) {
+						best = compare.getValue();
 					}
-					else if(pair.getValue().getKey().letterCount() < best.getKey().letterCount()) {
-						best = pair.getValue();
-					}
-					int first = pair.getValue().getKey().getFirstChar();
-					int second = best.getKey().getFirstChar();
-					if(first > second) {
-						best = pair.getValue();
-					}
-					else if(first == second) {
-						// TODO Choose the next rightmost letter;
-					}
-					
 				}
+//				else if(compare.getValue().emptyKey()) {
+//						best = compare.getValue();	
+//					}
+//					else {
+//						
+//						 if(best.emptyKey()) {
+//							System.out.println("Returning: " + best.getSet().toString());
+//							return best;
+//						}
+//						int first = compare.getValue().getKey().getFirstChar();
+//						int second = best.getKey().getFirstChar();
+//						if(first > second) {
+//							best = compare.getValue();
+//						}
+//						else if(first == second) {
+//							// TODO Choose the next rightmost letter;
+//						}
+//						
+//					}
+				}	
 			}
-		}
+			
 		return best;
 	}
 
