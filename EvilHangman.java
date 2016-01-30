@@ -64,7 +64,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	}
 	
 	public boolean isAlpha(String val) {
-	    return val.matches("[a-z]+");
+	    return val.matches("[a-zA-Z]+");
 	}
 	
 	public boolean checkWordSet(char guess) {
@@ -214,7 +214,8 @@ public class EvilHangman implements IEvilHangmanGame {
 			String in = input.nextLine();
 			
 			if(in.length() == 1 && game.isAlpha(in)) {
-				char guess = in.charAt(0);
+				String lower = in.toLowerCase();
+				char guess = lower.charAt(0);
 				try {
 					// Making Guess Here.
 					game.makeGuess(guess);
