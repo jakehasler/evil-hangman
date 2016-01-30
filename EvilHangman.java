@@ -64,7 +64,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	}
 	
 	public boolean isAlpha(String val) {
-	    return val.matches("[a-zA-Z]+");
+	    return val.matches("[a-z]+");
 	}
 	
 	public boolean checkWordSet(char guess) {
@@ -211,7 +211,7 @@ public class EvilHangman implements IEvilHangmanGame {
 			
 			System.out.print("What letter do you want to guess?: ");
 			Scanner input = new Scanner(System.in);
-			String in = input.next();
+			String in = input.nextLine();
 			
 			if(in.length() == 1 && game.isAlpha(in)) {
 				char guess = in.charAt(0);
@@ -220,7 +220,7 @@ public class EvilHangman implements IEvilHangmanGame {
 					game.makeGuess(guess);
 				} catch (GuessAlreadyMadeException e) {
 					System.out.println("You already used that letter.");
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 			else {
