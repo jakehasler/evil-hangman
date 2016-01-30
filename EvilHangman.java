@@ -13,9 +13,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 
-
-
-
 public class EvilHangman implements IEvilHangmanGame {
 	
 	private int wordLength; //( >= 1)
