@@ -83,6 +83,7 @@ public class Key {
 	}
 	
 	public boolean equals(Object o) {
+		System.out.println("Checking if Equal");
 		if(o.getClass() == this.getClass()) {
 			String str = o.toString();
 			boolean equal = value.equals(str);

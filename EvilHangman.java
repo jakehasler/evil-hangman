@@ -19,7 +19,7 @@ import java.util.TreeSet;
 public class EvilHangman implements IEvilHangmanGame {
 	
 	private int wordLength; //( >= 1)
-	private int numGuesses; //( >0 && < 26)
+	public int numGuesses; //( >0 && < 26)
 	private static Set<String> wordSet;
 	// Alphabetical Set - Used so far
 	private static Set guessedLetters = new TreeSet();
@@ -97,7 +97,7 @@ public class EvilHangman implements IEvilHangmanGame {
 			else {
 				// Key does exist
 				// add the string to the partition with matching key
-				partitions.insert(testKey, str);
+				partitions.insert(testKey, str, numGuesses);
 				//System.out.println("Inserted into partition:");
 				//System.out.println(testKey + str);
 			}
@@ -107,7 +107,7 @@ public class EvilHangman implements IEvilHangmanGame {
 		//prevCount += bestPart.getKey().letterCount();
 		this.currGuessFreq = bestPart.getKey().letterCount();
 		//System.out.println("Best Partition:");
-		//System.out.println(bestPart.getKey().toString() + bestPart.getSet());
+		//System.out.println(bestPart.getKey().toString() + bestPart.getSet().toString());
 		// TODO Resolve how to properly determine if a guess has ben made.
 		if(bestPart.getKey().letterCount() > 0) {
 			guessMade = true;
@@ -126,6 +126,7 @@ public class EvilHangman implements IEvilHangmanGame {
 	
 	@Override
 	public void startGame(File dictionary, int wordLength) {
+		this.partitions = new Partitions();
 		this.wordLength = wordLength;
 		this.theWord = new Key(wordLength);
 		this.buildWordSet(dictionary);
